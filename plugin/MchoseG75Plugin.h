@@ -11,7 +11,12 @@
 
 #include <QObject>
 #include <QtPlugin>
+#include <vector>
+#include <string>
 #include "OpenRGBPluginInterface.h"
+#include "ResourceManagerCallback.h"
+
+struct MchoseG75DeviceContext;
 
 class MchoseG75Plugin : public QObject, public OpenRGBPluginInterface
 {
@@ -37,10 +42,14 @@ public:
     unsigned char*      OnSDKCommand(unsigned int, unsigned char*, unsigned int*) override { return nullptr; }
 
     void                ProfileManagerUpdated(unsigned int) override {}
-    void                ResourceManagerUpdated(unsigned int) override {}
+    void                ResourceManagerUpdated(unsigned int reason) override;
     void                SettingsManagerUpdated(unsigned int) override {}
 
 private:
-    OpenRGBPluginAPIInterface* api;
-    QWidget*                   widget;
+    void                ScanDevices();
+    void                RegisterKeyboard(class MchoseG75Controller* ctl, const std::string& dev_path, int mode);
+
+    OpenRGBPluginAPIInterface*           api;
+    QWidget*                             widget;
+    std::vector<MchoseG75DeviceContext*> active_devices;
 };

@@ -19,6 +19,7 @@ venv/
 *.obj
 build/
 bin/
+openrgb_src/
 
 # Release assets
 openrgb_mchose_g75.tar.gz

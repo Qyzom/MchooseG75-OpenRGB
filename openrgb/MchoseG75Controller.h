@@ -57,6 +57,7 @@ public:
     int         GetConnectionMode();
 
     void        SetLEDsDirect(const std::vector<RGBColor>& colors);
+    void        Reconnect();
 
 private:
     hid_device* dev;

@@ -24,7 +24,39 @@ MchoseG75Controller::~MchoseG75Controller()
     if(dev)
     {
         hid_close(dev);
+        dev = nullptr;
     }
+}
+
+void MchoseG75Controller::Reconnect()
+{
+    if(dev)
+    {
+        hid_close(dev);
+        dev = nullptr;
+    }
+
+    uint16_t vid = (mode == MCHOSE_G75_MODE_WIRED) ? MCHOSE_G75_WIRED_VID : MCHOSE_G75_WIRELESS_VID;
+    uint16_t pid = (mode == MCHOSE_G75_MODE_WIRED) ? MCHOSE_G75_WIRED_PID : MCHOSE_G75_WIRELESS_PID;
+
+    struct hid_device_info* devs = hid_enumerate(vid, pid);
+    struct hid_device_info* cur_dev = devs;
+
+    while(cur_dev)
+    {
+        if(cur_dev->interface_number == 1)
+        {
+            hid_device* new_dev = hid_open_path(cur_dev->path);
+            if(new_dev)
+            {
+                dev      = new_dev;
+                location = cur_dev->path ? cur_dev->path : "";
+                break;
+            }
+        }
+        cur_dev = cur_dev->next;
+    }
+    hid_free_enumeration(devs);
 }
 
 std::string MchoseG75Controller::GetLocation()
@@ -44,6 +76,10 @@ int MchoseG75Controller::GetConnectionMode()
 
 std::string MchoseG75Controller::GetSerialString()
 {
+    if(!dev)
+    {
+        return "";
+    }
     wchar_t serial_string[128];
     int ret = hid_get_serial_number_string(dev, serial_string, 128);
     if(ret != 0)
@@ -86,7 +122,21 @@ void MchoseG75Controller::SetLEDsDirectWired(const std::vector<RGBColor>& colors
         buf[0x09 + 2 * MCHOSE_G75_LEDS_COUNT + i] = RGBGetBValue(colors[i]);
     }
 
-    hid_send_feature_report(dev, buf, MCHOSE_G75_WIRED_BUF_SIZE);
+    int ret = -1;
+    if(dev)
+    {
+        ret = hid_send_feature_report(dev, buf, MCHOSE_G75_WIRED_BUF_SIZE);
+    }
+
+    // Auto-reconnect if report failed (e.g. unplugged/replugged or USB re-enumerated)
+    if(ret < 0)
+    {
+        Reconnect();
+        if(dev)
+        {
+            hid_send_feature_report(dev, buf, MCHOSE_G75_WIRED_BUF_SIZE);
+        }
+    }
 }
 
 void MchoseG75Controller::SetLEDsDirectWireless(const std::vector<RGBColor>& colors)
@@ -101,6 +151,15 @@ void MchoseG75Controller::SetLEDsDirectWireless(const std::vector<RGBColor>& col
         raw_buffer[i]                            = RGBGetRValue(colors[i]);
         raw_buffer[MCHOSE_G75_LEDS_COUNT + i]     = RGBGetGValue(colors[i]);
         raw_buffer[2 * MCHOSE_G75_LEDS_COUNT + i] = RGBGetBValue(colors[i]);
+    }
+
+    if(!dev)
+    {
+        Reconnect();
+        if(!dev)
+        {
+            return;
+        }
     }
 
     // Send 27 chunks of 14 bytes via 20-byte Output Reports (Report ID 0x13)
@@ -122,7 +181,16 @@ void MchoseG75Controller::SetLEDsDirectWireless(const std::vector<RGBColor>& col
         }
         packet[19] = (unsigned char)(checksum & 0xFF);
 
-        hid_write(dev, packet, 20);
+        int written = hid_write(dev, packet, 20);
+        if(written < 0)
+        {
+            Reconnect();
+            if(!dev)
+            {
+                break;
+            }
+            hid_write(dev, packet, 20);
+        }
         std::this_thread::sleep_for(std::chrono::milliseconds(5));
     }
 }

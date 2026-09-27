@@ -76,11 +76,43 @@ static void MchoseG75_DeviceUpdateLEDs(void* obj)
 
     RGBColor* colors_ptr = ctx->v_ctl->GetColorsPointer();
     unsigned int led_count = ctx->v_ctl->GetLEDCount();
-    if(colors_ptr && led_count > 0)
+    if(!colors_ptr || led_count == 0)
     {
-        std::vector<RGBColor> colors(colors_ptr, colors_ptr + led_count);
-        ctx->ctl->SetLEDsDirect(colors);
+        return;
     }
+
+    int active_mode = ctx->v_ctl->GetActiveMode();
+    unsigned int brightness = ctx->v_ctl->GetModeBrightness(active_mode);
+    if(brightness > 100)
+    {
+        brightness = 100;
+    }
+
+    std::vector<RGBColor> colors(led_count);
+    RGBColor static_color = 0;
+    if(active_mode == 1) // Static mode
+    {
+        static_color = ctx->v_ctl->GetModeColor(1, 0);
+        ctx->v_ctl->SetAllColors(static_color);
+    }
+
+    for(size_t i = 0; i < led_count; ++i)
+    {
+        RGBColor c = (active_mode == 1) ? static_color : colors_ptr[i];
+        if(brightness < 100)
+        {
+            unsigned char r = (RGBGetRValue(c) * brightness) / 100;
+            unsigned char g = (RGBGetGValue(c) * brightness) / 100;
+            unsigned char b = (RGBGetBValue(c) * brightness) / 100;
+            colors[i] = ToRGBColor(r, g, b);
+        }
+        else
+        {
+            colors[i] = c;
+        }
+    }
+
+    ctx->ctl->SetLEDsDirect(colors);
 }
 
 static void MchoseG75_DeviceUpdateZoneLEDs(void* obj, int /*zone*/)
@@ -95,18 +127,6 @@ static void MchoseG75_DeviceUpdateSingleLED(void* obj, int /*led*/)
 
 static void MchoseG75_DeviceUpdateMode(void* obj)
 {
-    MchoseG75DeviceContext* ctx = static_cast<MchoseG75DeviceContext*>(obj);
-    if(!ctx || !ctx->ctl || !ctx->v_ctl)
-    {
-        return;
-    }
-
-    int active_mode = ctx->v_ctl->GetActiveMode();
-    if(active_mode == 1) // Static mode
-    {
-        RGBColor static_color = ctx->v_ctl->GetModeColor(active_mode, 0);
-        ctx->v_ctl->SetAllColors(static_color);
-    }
     MchoseG75_DeviceUpdateLEDs(obj);
 }
 
@@ -167,20 +187,27 @@ void MchoseG75Plugin::RegisterKeyboard(MchoseG75Controller* ctl, const std::stri
     setup.type          = DEVICE_TYPE_KEYBOARD;
 
     class mode Direct;
-    Direct.name       = "Direct";
-    Direct.value      = 0;
-    Direct.flags      = MODE_FLAG_HAS_PER_LED_COLOR;
-    Direct.color_mode = MODE_COLORS_PER_LED;
+    Direct.name           = "Direct";
+    Direct.value          = 0;
+    Direct.flags          = MODE_FLAG_HAS_PER_LED_COLOR | MODE_FLAG_HAS_BRIGHTNESS;
+    Direct.color_mode     = MODE_COLORS_PER_LED;
+    Direct.brightness_min = 0;
+    Direct.brightness_max = 100;
+    Direct.brightness     = 100;
     setup.modes.push_back(Direct);
 
     class mode Static;
-    Static.name       = "Static";
-    Static.value      = 1;
-    Static.flags      = MODE_FLAG_HAS_MODE_SPECIFIC_COLOR;
-    Static.colors_min = 1;
-    Static.colors_max = 1;
-    Static.color_mode = MODE_COLORS_MODE_SPECIFIC;
+    Static.name           = "Static";
+    Static.value          = 1;
+    Static.flags          = MODE_FLAG_HAS_MODE_SPECIFIC_COLOR | MODE_FLAG_HAS_BRIGHTNESS;
+    Static.colors_min     = 1;
+    Static.colors_max     = 1;
+    Static.color_mode     = MODE_COLORS_MODE_SPECIFIC;
     Static.colors.resize(1);
+    Static.colors[0]      = ToRGBColor(255, 0, 0);
+    Static.brightness_min = 0;
+    Static.brightness_max = 100;
+    Static.brightness     = 100;
     setup.modes.push_back(Static);
 
     zone keyboard_zone;

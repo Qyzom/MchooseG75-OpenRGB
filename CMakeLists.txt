@@ -25,6 +25,7 @@ target_include_directories(OpenRGBMchoseG75Plugin PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/openrgb_src/RGBController
     ${CMAKE_CURRENT_SOURCE_DIR}/openrgb_src/Detectors
     ${CMAKE_CURRENT_SOURCE_DIR}/openrgb_src/dependencies/hidapi/hidapi
+    ${CMAKE_CURRENT_SOURCE_DIR}/openrgb_src/dependencies/hidapi-win/include
     ${CMAKE_CURRENT_SOURCE_DIR}/openrgb_src/dependencies/json
     ${CMAKE_CURRENT_SOURCE_DIR}/openrgb_src/dependencies/hue-plusplus/include
     /usr/include/hidapi
@@ -37,12 +38,8 @@ target_link_libraries(OpenRGBMchoseG75Plugin PRIVATE
 )
 
 if(WIN32)
-    target_sources(OpenRGBMchoseG75Plugin PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/openrgb_src/dependencies/hidapi/windows/hid.c
-    )
     target_link_libraries(OpenRGBMchoseG75Plugin PRIVATE
-        setupapi
-        hid
+        ${CMAKE_CURRENT_SOURCE_DIR}/openrgb_src/dependencies/hidapi-win/x64/hidapi.lib
     )
 elseif(UNIX AND NOT APPLE)
     find_package(PkgConfig QUIET)

@@ -73,16 +73,15 @@ void RGBController_MchoseG75::SetupZones()
     keyboard_zone.leds_min               = MCHOSE_G75_LEDS_COUNT;
     keyboard_zone.leds_max               = MCHOSE_G75_LEDS_COUNT;
     keyboard_zone.leds_count             = MCHOSE_G75_LEDS_COUNT;
-    keyboard_zone.matrix_map             = new matrix_map_type;
-    keyboard_zone.matrix_map->height     = MATRIX_ROWS;
-    keyboard_zone.matrix_map->width      = MATRIX_COLS;
-    keyboard_zone.matrix_map->map        = new unsigned int[MATRIX_ROWS * MATRIX_COLS];
+    keyboard_zone.matrix_map.height      = MATRIX_ROWS;
+    keyboard_zone.matrix_map.width       = MATRIX_COLS;
+    keyboard_zone.matrix_map.map.resize(MATRIX_ROWS * MATRIX_COLS);
 
     for(unsigned int r = 0; r < MATRIX_ROWS; ++r)
     {
         for(unsigned int c = 0; c < MATRIX_COLS; ++c)
         {
-            keyboard_zone.matrix_map->map[r * MATRIX_COLS + c] = g75_matrix_map[r][c];
+            keyboard_zone.matrix_map.map[r * MATRIX_COLS + c] = g75_matrix_map[r][c];
         }
     }
 

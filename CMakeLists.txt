@@ -24,7 +24,10 @@ target_include_directories(OpenRGBMchoseG75Plugin PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/plugin
     ${CMAKE_CURRENT_SOURCE_DIR}/openrgb_src
     ${CMAKE_CURRENT_SOURCE_DIR}/openrgb_src/RGBController
+    ${CMAKE_CURRENT_SOURCE_DIR}/openrgb_src/Detectors
     ${CMAKE_CURRENT_SOURCE_DIR}/openrgb_src/dependencies/hidapi/hidapi
+    ${CMAKE_CURRENT_SOURCE_DIR}/openrgb_src/dependencies/json
+    ${CMAKE_CURRENT_SOURCE_DIR}/openrgb_src/dependencies/hue-plusplus/include
 )
 
 target_link_libraries(OpenRGBMchoseG75Plugin PRIVATE

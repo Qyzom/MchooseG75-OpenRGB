@@ -1,17 +1,17 @@
-# MCHOSE G75 OpenRGB Native Controller Module
+# MCHOSE G75 OpenRGB Plugin & Controller Module
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![OpenRGB: Supported](https://img.shields.io/badge/OpenRGB-Supported-success.svg)](https://openrgb.org)
 [![Platform: Linux & Windows](https://img.shields.io/badge/Platform-Linux%20%7C%20Windows-brightgreen.svg)]()
 [![Language: C++17](https://img.shields.io/badge/Language-C%2B%2B17-orange.svg)]()
 
-Native **OpenRGB** C++ controller module for the **MCHOSE G75 / G75 Pro** mechanical keyboard. Implements full per-key RGB control, 75% matrix mapping, and direct lighting updates over both **Wired (USB Type-C)** and **Wireless (2.4G USB Dongle)** connection modes.
+Native **OpenRGB** dynamic plugin and C++ controller module for the **MCHOSE G75 / G75 Pro** mechanical keyboard. Implements full per-key RGB control, 75% matrix mapping, and direct lighting updates over both **Wired (USB Type-C)** and **Wireless (2.4G USB Dongle)** connection modes.
 
 ---
 
 ### Overview
 
-The official vendor utility (MCHOSE HUB) is Electron-based, Windows-only, and lacks Linux support. This repository provides native C++ driver controller files for OpenRGB, enabling seamless hardware lighting control across Linux and Windows without background CPU overhead or risk of EEPROM key-remap corruption.
+The official vendor utility (MCHOSE HUB) is Electron-based, heavy on resources, Windows-only, and lacks native Linux support. This repository provides a single-file dynamic plugin (`.dll` / `.so`) for OpenRGB, enabling seamless hardware lighting control across Linux and Windows without background CPU overhead or risk of EEPROM key-remap corruption.
 
 ---
 
@@ -33,64 +33,50 @@ The official vendor utility (MCHOSE HUB) is Electron-based, Windows-only, and la
 
 ---
 
-### Quick Start: Installing the Single-File Plugin
+### Installation Guide
 
-To add **MCHOSE G75** to your existing OpenRGB installation without compiling:
+#### Option A: Single-File Plugin Installation (No Compilation Required)
 
-1. Download the pre-compiled plugin binary from the [**Releases**](https://github.com/Qyzom/MchooseG75-OpenRGB/releases/latest) page:
-   - **Windows:** Download **`OpenRGBMchoseG75Plugin.dll`**
-   - **Linux:** Download **`OpenRGBMchoseG75Plugin.so`**
-2. Open **OpenRGB**.
-3. Navigate to **Settings → Plugins → Add Plugin**.
-4. Select the downloaded `OpenRGBMchoseG75Plugin.dll` or `OpenRGBMchoseG75Plugin.so` file.
-5. The **MCHOSE G75 / G75 Pro** keyboard will automatically appear in the **Devices** tab!
+To add **MCHOSE G75** to your existing OpenRGB installation:
 
----
-
-### OpenRGB In-Tree C++ Module Files
-
-For developers building OpenRGB from source or submitting upstream PRs:
-
-| File Name | Purpose / Role |
-| :--- | :--- |
-| **`MchoseG75Controller.h`** | Header for low-level HID communication driver. |
-| **`MchoseG75Controller.cpp`** | Implementation of wired (520-byte Feature Report) and 2.4G wireless (20-byte Output Report stream) packet builders. |
-| **`RGBController_MchoseG75.h`** | Header for OpenRGB controller interface binding. |
-| **`RGBController_MchoseG75.cpp`** | OpenRGB matrix layout mapping, LED naming, color plane encoding, and mode registrations. |
-| **`MchoseG75Detect.cpp`** | OpenRGB HID detector registering both Wired (`0x258A:0x010C`) and Wireless (`0x41E4:0x2001`) PIDs. |
-| **`plugin/MchoseG75Plugin.cpp`** | Standalone dynamic plugin wrapper for OpenRGB plugin interface. |
+1. Go to the [**Releases**](https://github.com/Qyzom/MchooseG75-OpenRGB/releases/latest) page.
+2. Download the pre-compiled single-file plugin for your OS:
+   - **Windows 10/11 (x64):** Download **`OpenRGBMchoseG75Plugin.dll`**
+   - **Linux (x86_64):** Download **`OpenRGBMchoseG75Plugin.so`**
+3. Open **OpenRGB**.
+4. Go to **Settings → Plugins → Add Plugin**.
+5. Select the downloaded `OpenRGBMchoseG75Plugin.dll` (or `.so`) file.
+6. The **MCHOSE G75 / G75 Pro** keyboard will automatically appear in the **Devices** tab!
 
 ---
 
-### Integration Guide
+#### Option B: In-Tree Source Code Build (For OpenRGB Developers)
 
-#### 1. Copy Controller Files into OpenRGB
-Copy the `openrgb/` module directory into your local OpenRGB repository under `Controllers/MchoseG75Controller/`:
-```bash
-cp -r openrgb/ /path/to/OpenRGB/Controllers/MchoseG75Controller
-```
+For developers compiling OpenRGB from source or submitting upstream PRs:
 
-#### 2. Register Files in `OpenRGB.pro`
-Add the module headers and sources to `OpenRGB.pro`:
-```qmake
-HEADERS += \
-    Controllers/MchoseG75Controller/MchoseG75Controller.h \
-    Controllers/MchoseG75Controller/RGBController_MchoseG75.h
+1. Copy the `openrgb/` module directory into your local OpenRGB repository under `Controllers/MchoseG75Controller/`:
+   ```bash
+   cp -r openrgb/ /path/to/OpenRGB/Controllers/MchoseG75Controller
+   ```
 
-SOURCES += \
-    Controllers/MchoseG75Controller/MchoseG75Controller.cpp \
-    Controllers/MchoseG75Controller/RGBController_MchoseG75.cpp \
-    Controllers/MchoseG75Controller/MchoseG75Detect.cpp
-```
+2. Register the module in `OpenRGB.pro`:
+   ```qmake
+   HEADERS += \
+       Controllers/MchoseG75Controller/MchoseG75Controller.h \
+       Controllers/MchoseG75Controller/RGBController_MchoseG75.h
 
-#### 3. Build & Install OpenRGB
-```bash
-qmake OpenRGB.pro
-make -j$(nproc)
-sudo make install
-```
+   SOURCES += \
+       Controllers/MchoseG75Controller/MchoseG75Controller.cpp \
+       Controllers/MchoseG75Controller/RGBController_MchoseG75.cpp \
+       Controllers/MchoseG75Controller/MchoseG75Detect.cpp
+   ```
 
-Upon launching OpenRGB, the **MCHOSE G75** will automatically appear under the Devices tab in both wired and wireless modes.
+3. Build & Install OpenRGB:
+   ```bash
+   qmake OpenRGB.pro
+   make -j$(nproc)
+   sudo make install
+   ```
 
 ---
 

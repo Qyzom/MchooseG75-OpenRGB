@@ -16,9 +16,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Checkout OpenRGB Headers
+      - name: Checkout OpenRGB Headers & Submodules
         run: |
-          git clone --depth 1 https://github.com/CalcProgrammer1/OpenRGB.git openrgb_src
+          git clone --recursive --depth 1 https://github.com/CalcProgrammer1/OpenRGB.git openrgb_src
 
       - name: Install Build Dependencies
         run: |
@@ -31,11 +31,22 @@ jobs:
           cmake .. -DCMAKE_BUILD_TYPE=Release
           cmake --build . --config Release
 
+      - name: Rename Linux Plugin
+        run: |
+          cp build/libOpenRGBMchoseG75Plugin.so OpenRGBMchoseG75Plugin.so
+
       - name: Upload Linux Plugin Artifact
         uses: actions/upload-artifact@v4
         with:
           name: OpenRGBMchoseG75Plugin-Linux
-          path: build/libOpenRGBMchoseG75Plugin.so
+          path: OpenRGBMchoseG75Plugin.so
+
+      - name: Release Linux Plugin Asset
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload ${{ github.ref_name }} OpenRGBMchoseG75Plugin.so --clobber
 
   build-windows:
     name: Build Windows Plugin (.dll)
@@ -45,9 +56,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Checkout OpenRGB Headers
+      - name: Checkout OpenRGB Headers & Submodules
         run: |
-          git clone --depth 1 https://github.com/CalcProgrammer1/OpenRGB.git openrgb_src
+          git clone --recursive --depth 1 https://github.com/CalcProgrammer1/OpenRGB.git openrgb_src
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
@@ -62,8 +73,19 @@ jobs:
           cmake .. -DCMAKE_BUILD_TYPE=Release
           cmake --build . --config Release
 
+      - name: Copy Windows Plugin
+        run: |
+          copy build\Release\OpenRGBMchoseG75Plugin.dll OpenRGBMchoseG75Plugin.dll
+
       - name: Upload Windows Plugin Artifact
         uses: actions/upload-artifact@v4
         with:
           name: OpenRGBMchoseG75Plugin-Windows
-          path: build/Release/OpenRGBMchoseG75Plugin.dll
+          path: OpenRGBMchoseG75Plugin.dll
+
+      - name: Release Windows Plugin Asset
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload ${{ github.ref_name }} OpenRGBMchoseG75Plugin.dll --clobber

@@ -7,7 +7,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Gui Widgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets)
 
 add_library(OpenRGBMchoseG75Plugin SHARED
     plugin/MchoseG75Plugin.h
@@ -35,9 +36,9 @@ target_include_directories(OpenRGBMchoseG75Plugin PRIVATE
 )
 
 target_link_libraries(OpenRGBMchoseG75Plugin PRIVATE
-    Qt5::Core
-    Qt5::Gui
-    Qt5::Widgets
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Gui
+    Qt${QT_VERSION_MAJOR}::Widgets
 )
 
 if(WIN32)

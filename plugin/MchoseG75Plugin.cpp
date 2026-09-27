@@ -10,10 +10,13 @@
 #include "MchoseG75Plugin.h"
 #include "MchoseG75Controller.h"
 #include "RGBController_MchoseG75.h"
+#include <QLabel>
+#include <QVBoxLayout>
 
 MchoseG75Plugin::MchoseG75Plugin()
 {
-    api = nullptr;
+    api    = nullptr;
+    widget = nullptr;
 }
 
 MchoseG75Plugin::~MchoseG75Plugin()
@@ -94,7 +97,19 @@ void MchoseG75Plugin::Load(OpenRGBPluginAPIInterface* plugin_api_ptr)
 
 QWidget* MchoseG75Plugin::GetWidget()
 {
-    return nullptr;
+    if(!widget)
+    {
+        widget = new QWidget();
+        QVBoxLayout* layout = new QVBoxLayout(widget);
+        QLabel* title = new QLabel("<h2>MCHOSE G75 Plugin</h2>", widget);
+        QLabel* desc  = new QLabel("Native driver plugin for MCHOSE G75 / G75 Pro Mechanical Keyboard.<br>Keyboards are automatically detected and registered in OpenRGB.", widget);
+        title->setAlignment(Qt::AlignCenter);
+        desc->setAlignment(Qt::AlignCenter);
+        layout->addWidget(title);
+        layout->addWidget(desc);
+        layout->addStretch();
+    }
+    return widget;
 }
 
 QMenu* MchoseG75Plugin::GetTrayMenu()
@@ -104,5 +119,9 @@ QMenu* MchoseG75Plugin::GetTrayMenu()
 
 void MchoseG75Plugin::Unload()
 {
-
+    if(widget)
+    {
+        delete widget;
+        widget = nullptr;
+    }
 }

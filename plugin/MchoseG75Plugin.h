@@ -16,7 +16,7 @@
 class MchoseG75Plugin : public QObject, public OpenRGBPluginInterface
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID OpenRGBPluginInterface_IID)
+    Q_PLUGIN_METADATA(IID OpenRGBPluginInterface_IID FILE "MchoseG75Plugin.json")
     Q_INTERFACES(OpenRGBPluginInterface)
 
 public:
@@ -42,4 +42,5 @@ public:
 
 private:
     OpenRGBPluginAPIInterface* api;
+    QWidget*                   widget;
 };

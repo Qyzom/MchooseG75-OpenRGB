@@ -11,8 +11,8 @@ permissions:
   contents: write
 
 jobs:
-  build-linux:
-    name: Build Linux Plugin (.so)
+  build-linux-qt6:
+    name: Build Linux Plugin (Qt 6 .so)
     runs-on: ubuntu-latest
 
     steps:
@@ -23,7 +23,43 @@ jobs:
         run: |
           git clone --recursive --depth 1 https://github.com/CalcProgrammer1/OpenRGB.git openrgb_src
 
-      - name: Install Build Dependencies
+      - name: Install Build Dependencies (Qt 6)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake qt6-base-dev qt6-tools-dev libhidapi-dev
+
+      - name: Build Plugin Shared Library
+        run: |
+          mkdir build && cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+          cmake --build . --config Release
+
+      - name: Rename Linux Plugin
+        run: |
+          cp build/libOpenRGBMchoseG75Plugin.so OpenRGBMchoseG75Plugin.so
+          cp build/libOpenRGBMchoseG75Plugin.so OpenRGBMchoseG75Plugin-Qt6.so
+
+      - name: Upload Linux Plugin Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: OpenRGBMchoseG75Plugin-Linux-Qt6
+          path: |
+            OpenRGBMchoseG75Plugin.so
+            OpenRGBMchoseG75Plugin-Qt6.so
+
+  build-linux-qt5:
+    name: Build Linux Plugin (Qt 5 .so)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Checkout OpenRGB Headers & Submodules
+        run: |
+          git clone --recursive --depth 1 https://github.com/CalcProgrammer1/OpenRGB.git openrgb_src
+
+      - name: Install Build Dependencies (Qt 5)
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential cmake qtbase5-dev qttools5-dev-tools libhidapi-dev
@@ -36,20 +72,13 @@ jobs:
 
       - name: Rename Linux Plugin
         run: |
-          cp build/libOpenRGBMchoseG75Plugin.so OpenRGBMchoseG75Plugin.so
+          cp build/libOpenRGBMchoseG75Plugin.so OpenRGBMchoseG75Plugin-Qt5.so
 
       - name: Upload Linux Plugin Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: OpenRGBMchoseG75Plugin-Linux
-          path: OpenRGBMchoseG75Plugin.so
-
-      - name: Release Linux Plugin Asset
-        if: startsWith(github.ref, 'refs/tags/')
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release upload ${{ github.ref_name }} OpenRGBMchoseG75Plugin.so --clobber
+          name: OpenRGBMchoseG75Plugin-Linux-Qt5
+          path: OpenRGBMchoseG75Plugin-Qt5.so
 
   build-windows:
     name: Build Windows Plugin (.dll)
@@ -86,9 +115,32 @@ jobs:
           name: OpenRGBMchoseG75Plugin-Windows
           path: OpenRGBMchoseG75Plugin.dll
 
-      - name: Release Windows Plugin Asset
-        if: startsWith(github.ref, 'refs/tags/')
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release upload ${{ github.ref_name }} OpenRGBMchoseG75Plugin.dll --clobber
+  release:
+    name: Publish GitHub Release
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [build-linux-qt6, build-linux-qt5, build-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Linux Qt6 Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: OpenRGBMchoseG75Plugin-Linux-Qt6
+          path: release_assets
+
+      - name: Download Linux Qt5 Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: OpenRGBMchoseG75Plugin-Linux-Qt5
+          path: release_assets
+
+      - name: Download Windows Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: OpenRGBMchoseG75Plugin-Windows
+          path: release_assets
+
+      - name: Create or Update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release_assets/*
+          generate_release_notes: true

@@ -42,11 +42,14 @@ To add **MCHOSE G75** to your existing OpenRGB installation:
 1. Go to the [**Releases**](https://github.com/Qyzom/MchooseG75-OpenRGB/releases/latest) page.
 2. Download the pre-compiled single-file plugin for your OS:
    - **Windows 10/11 (x64):** Download **`OpenRGBMchoseG75Plugin.dll`**
-   - **Linux (x86_64):** Download **`OpenRGBMchoseG75Plugin.so`**
-3. Open **OpenRGB**.
-4. Go to **Settings → Plugins → Add Plugin**.
-5. Select the downloaded `OpenRGBMchoseG75Plugin.dll` (or `.so`) file.
-6. The **MCHOSE G75 / G75 Pro** keyboard will automatically appear in the **Devices** tab!
+   - **Linux (x86_64 Qt 6 / OpenRGB 1.0):** Download **`OpenRGBMchoseG75Plugin.so`** (or `OpenRGBMchoseG75Plugin-Qt6.so`)
+   - **Linux (x86_64 Qt 5):** Download **`OpenRGBMchoseG75Plugin-Qt5.so`**
+3. Open **OpenRGB** (requires OpenRGB 1.0 or Pipeline build).
+4. Go to **Settings → Plugins → Install Plugin** (or drag & drop the file into the plugins list).
+   > **Linux Tip:** If the file chooser does not allow selecting the `.so` file, simply copy it directly to your OpenRGB plugins folder:
+   > `mkdir -p ~/.config/OpenRGB/plugins && cp OpenRGBMchoseG75Plugin.so ~/.config/OpenRGB/plugins/`
+   > (or `~/.var/app/org.openrgb.OpenRGB/config/OpenRGB/plugins/` for Flatpak), then restart OpenRGB.
+5. The **MCHOSE G75 / G75 Pro** keyboard will automatically appear in the **Devices** tab!
 
 ---
 

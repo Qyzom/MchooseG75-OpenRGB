@@ -11,11 +11,6 @@
 #include "MchoseG75Controller.h"
 #include "RGBController_MchoseG75.h"
 
-#define MCHOSE_G75_WIRED_VID        0x258A
-#define MCHOSE_G75_WIRED_PID        0x010C
-
-#define MCHOSE_G75_WIRELESS_VID     0x41E4
-#define MCHOSE_G75_WIRELESS_PID     0x2001
 
 void DetectMchoseG75Wired(hid_device_info* info, const std::string& name)
 {

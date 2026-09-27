@@ -16,7 +16,6 @@ add_library(OpenRGBMchoseG75Plugin SHARED
     openrgb/MchoseG75Controller.cpp
     openrgb/RGBController_MchoseG75.h
     openrgb/RGBController_MchoseG75.cpp
-    openrgb/MchoseG75Detect.cpp
 )
 
 target_include_directories(OpenRGBMchoseG75Plugin PRIVATE
@@ -36,3 +35,23 @@ target_link_libraries(OpenRGBMchoseG75Plugin PRIVATE
     Qt5::Gui
     Qt5::Widgets
 )
+
+if(WIN32)
+    target_sources(OpenRGBMchoseG75Plugin PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/openrgb_src/dependencies/hidapi/windows/hid.c
+    )
+    target_link_libraries(OpenRGBMchoseG75Plugin PRIVATE
+        setupapi
+        hid
+    )
+elseif(UNIX AND NOT APPLE)
+    find_package(PkgConfig QUIET)
+    if(PKG_CONFIG_FOUND)
+        pkg_check_modules(HIDAPI hidapi-hidraw)
+    endif()
+    if(HIDAPI_FOUND)
+        target_link_libraries(OpenRGBMchoseG75Plugin PRIVATE ${HIDAPI_LIBRARIES})
+    else()
+        target_link_libraries(OpenRGBMchoseG75Plugin PRIVATE hidapi-hidraw)
+    endif()
+endif()

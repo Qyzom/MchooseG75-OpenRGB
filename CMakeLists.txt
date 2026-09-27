@@ -12,10 +12,13 @@ find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets)
 add_library(OpenRGBMchoseG75Plugin SHARED
     plugin/MchoseG75Plugin.h
     plugin/MchoseG75Plugin.cpp
+    plugin/LogManagerStub.cpp
     openrgb/MchoseG75Controller.h
     openrgb/MchoseG75Controller.cpp
     openrgb/RGBController_MchoseG75.h
     openrgb/RGBController_MchoseG75.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/openrgb_src/RGBController/RGBController.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/openrgb_src/StringUtils.cpp
 )
 
 target_include_directories(OpenRGBMchoseG75Plugin PRIVATE

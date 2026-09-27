@@ -151,8 +151,8 @@ OpenRGBPluginInfo MchoseG75Plugin::GetPluginInfo()
 
     info.Name            = "MCHOSE G75 Plugin";
     info.Description     = "Native driver plugin for MCHOSE G75 / G75 Pro Mechanical Keyboard (Wired & 2.4G Wireless)";
-    info.Version         = "1.0.0";
-    info.Commit          = "1.0.0";
+    info.Version         = "1.0.1";
+    info.Commit          = "1.0.1";
     info.URL             = "https://github.com/Qyzom/MchooseG75-OpenRGB";
     info.Location        = OPENRGB_PLUGIN_LOCATION_SETTINGS;
     info.Label           = "MCHOSE G75";
@@ -179,7 +179,7 @@ void MchoseG75Plugin::RegisterKeyboard(MchoseG75Controller* ctl, const std::stri
     setup.name          = ctl->GetName();
     setup.serial        = ctl->GetSerialString();
     setup.vendor        = "MCHOSE";
-    setup.version       = "1.0.0";
+    setup.version       = "1.0.1";
     setup.configuration = "";
 
     setup.active_mode   = 0;

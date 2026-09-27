@@ -14,13 +14,26 @@
 
 MchoseG75Controller::MchoseG75Controller(hid_device* dev_handle, const char* path, int connection_mode)
 {
-    dev      = dev_handle;
-    location = path ? path : "";
-    mode     = connection_mode;
+    dev                = dev_handle;
+    location           = path ? path : "";
+    mode               = connection_mode;
+    stop_thread        = false;
+    has_pending_update = false;
+
+    worker_thread      = std::thread(&MchoseG75Controller::WorkerThreadLoop, this);
 }
 
 MchoseG75Controller::~MchoseG75Controller()
 {
+    stop_thread = true;
+    update_cv.notify_all();
+
+    if(worker_thread.joinable())
+    {
+        worker_thread.join();
+    }
+
+    std::lock_guard<std::mutex> lock(dev_mutex);
     if(dev)
     {
         hid_close(dev);
@@ -30,6 +43,7 @@ MchoseG75Controller::~MchoseG75Controller()
 
 void MchoseG75Controller::Reconnect()
 {
+    std::lock_guard<std::mutex> lock(dev_mutex);
     if(dev)
     {
         hid_close(dev);
@@ -76,6 +90,7 @@ int MchoseG75Controller::GetConnectionMode()
 
 std::string MchoseG75Controller::GetSerialString()
 {
+    std::lock_guard<std::mutex> lock(dev_mutex);
     if(!dev)
     {
         return "";
@@ -90,6 +105,66 @@ std::string MchoseG75Controller::GetSerialString()
 }
 
 void MchoseG75Controller::SetLEDsDirect(const std::vector<RGBColor>& colors)
+{
+    {
+        std::lock_guard<std::mutex> lock(update_mutex);
+        pending_colors     = colors;
+        has_pending_update = true;
+    }
+    update_cv.notify_one();
+}
+
+void MchoseG75Controller::WorkerThreadLoop()
+{
+    // Minimum safe interval between hardware writes to protect the MCU USB FIFO from crashing
+    // 35ms (~28 FPS) for wired, 150ms for multi-packet 2.4G wireless
+    const auto min_interval = (mode == MCHOSE_G75_MODE_WIRED)
+        ? std::chrono::milliseconds(35)
+        : std::chrono::milliseconds(150);
+
+    auto last_send_time = std::chrono::steady_clock::now() - min_interval;
+
+    while(!stop_thread)
+    {
+        std::vector<RGBColor> colors_to_send;
+        {
+            std::unique_lock<std::mutex> lock(update_mutex);
+            update_cv.wait(lock, [this]() {
+                return stop_thread.load() || has_pending_update;
+            });
+
+            if(stop_thread && !has_pending_update)
+            {
+                break;
+            }
+
+            auto now     = std::chrono::steady_clock::now();
+            auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_send_time);
+            if(elapsed < min_interval)
+            {
+                auto wait_time = min_interval - elapsed;
+                update_cv.wait_for(lock, wait_time, [this]() {
+                    return stop_thread.load();
+                });
+                if(stop_thread && !has_pending_update)
+                {
+                    break;
+                }
+            }
+
+            colors_to_send     = pending_colors;
+            has_pending_update = false;
+        }
+
+        if(!colors_to_send.empty())
+        {
+            SendFrame(colors_to_send);
+            last_send_time = std::chrono::steady_clock::now();
+        }
+    }
+}
+
+void MchoseG75Controller::SendFrame(const std::vector<RGBColor>& colors)
 {
     if(mode == MCHOSE_G75_MODE_WIRED)
     {
@@ -123,15 +198,18 @@ void MchoseG75Controller::SetLEDsDirectWired(const std::vector<RGBColor>& colors
     }
 
     int ret = -1;
-    if(dev)
     {
-        ret = hid_send_feature_report(dev, buf, MCHOSE_G75_WIRED_BUF_SIZE);
+        std::lock_guard<std::mutex> lock(dev_mutex);
+        if(dev)
+        {
+            ret = hid_send_feature_report(dev, buf, MCHOSE_G75_WIRED_BUF_SIZE);
+        }
     }
 
-    // Auto-reconnect if report failed (e.g. unplugged/replugged or USB re-enumerated)
     if(ret < 0)
     {
         Reconnect();
+        std::lock_guard<std::mutex> lock(dev_mutex);
         if(dev)
         {
             hid_send_feature_report(dev, buf, MCHOSE_G75_WIRED_BUF_SIZE);
@@ -153,6 +231,7 @@ void MchoseG75Controller::SetLEDsDirectWireless(const std::vector<RGBColor>& col
         raw_buffer[2 * MCHOSE_G75_LEDS_COUNT + i] = RGBGetBValue(colors[i]);
     }
 
+    std::lock_guard<std::mutex> lock(dev_mutex);
     if(!dev)
     {
         Reconnect();
@@ -166,6 +245,11 @@ void MchoseG75Controller::SetLEDsDirectWireless(const std::vector<RGBColor>& col
     unsigned char packet[20];
     for(int chunk_idx = 0; chunk_idx < MCHOSE_G75_WIRELESS_CHUNKS; ++chunk_idx)
     {
+        if(stop_thread)
+        {
+            break;
+        }
+
         packet[0] = 0x13;
         packet[1] = 0x02;
         packet[2] = 0x1B;
@@ -184,12 +268,7 @@ void MchoseG75Controller::SetLEDsDirectWireless(const std::vector<RGBColor>& col
         int written = hid_write(dev, packet, 20);
         if(written < 0)
         {
-            Reconnect();
-            if(!dev)
-            {
-                break;
-            }
-            hid_write(dev, packet, 20);
+            break;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(5));
     }

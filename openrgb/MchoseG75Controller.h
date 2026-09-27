@@ -14,6 +14,9 @@
 #include <vector>
 #include <chrono>
 #include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <atomic>
 #include "RGBController.h"
 
 #if defined(__has_include)
@@ -64,6 +67,16 @@ private:
     std::string location;
     int         mode;
 
+    std::mutex              dev_mutex;
+    std::mutex              update_mutex;
+    std::condition_variable update_cv;
+    std::thread             worker_thread;
+    std::atomic<bool>       stop_thread;
+    bool                    has_pending_update;
+    std::vector<RGBColor>   pending_colors;
+
+    void        WorkerThreadLoop();
+    void        SendFrame(const std::vector<RGBColor>& colors);
     void        SetLEDsDirectWired(const std::vector<RGBColor>& colors);
     void        SetLEDsDirectWireless(const std::vector<RGBColor>& colors);
 };

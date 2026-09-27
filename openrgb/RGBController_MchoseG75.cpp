@@ -41,20 +41,27 @@ RGBController_MchoseG75::RGBController_MchoseG75(MchoseG75Controller* controller
     serial      = controller->GetSerialString();
 
     mode Direct;
-    Direct.name       = "Direct";
-    Direct.value      = 0;
-    Direct.flags      = MODE_FLAG_HAS_PER_LED_COLOR;
-    Direct.color_mode = MODE_COLORS_PER_LED;
+    Direct.name           = "Direct";
+    Direct.value          = 0;
+    Direct.flags          = MODE_FLAG_HAS_PER_LED_COLOR | MODE_FLAG_HAS_BRIGHTNESS;
+    Direct.color_mode     = MODE_COLORS_PER_LED;
+    Direct.brightness_min = 0;
+    Direct.brightness_max = 100;
+    Direct.brightness     = 100;
     modes.push_back(Direct);
 
     mode Static;
-    Static.name       = "Static";
-    Static.value      = 1;
-    Static.flags      = MODE_FLAG_HAS_MODE_SPECIFIC_COLOR;
-    Static.colors_min = 1;
-    Static.colors_max = 1;
-    Static.color_mode = MODE_COLORS_MODE_SPECIFIC;
+    Static.name           = "Static";
+    Static.value          = 1;
+    Static.flags          = MODE_FLAG_HAS_MODE_SPECIFIC_COLOR | MODE_FLAG_HAS_BRIGHTNESS;
+    Static.colors_min     = 1;
+    Static.colors_max     = 1;
+    Static.color_mode     = MODE_COLORS_MODE_SPECIFIC;
     Static.colors.resize(1);
+    Static.colors[0]      = ToRGBColor(255, 0, 0);
+    Static.brightness_min = 0;
+    Static.brightness_max = 100;
+    Static.brightness     = 100;
     modes.push_back(Static);
 
     SetupZones();
@@ -106,7 +113,23 @@ void RGBController_MchoseG75::ResizeZone(int /*zone*/, int /*new_size*/)
 
 void RGBController_MchoseG75::DeviceUpdateLEDs()
 {
-    controller->SetLEDsDirect(colors);
+    unsigned int brightness = modes[active_mode].brightness;
+    if((modes[active_mode].flags & MODE_FLAG_HAS_BRIGHTNESS) && brightness < 100)
+    {
+        std::vector<RGBColor> scaled_colors(colors.size());
+        for(size_t i = 0; i < colors.size(); ++i)
+        {
+            unsigned char r = (RGBGetRValue(colors[i]) * brightness) / 100;
+            unsigned char g = (RGBGetGValue(colors[i]) * brightness) / 100;
+            unsigned char b = (RGBGetBValue(colors[i]) * brightness) / 100;
+            scaled_colors[i] = ToRGBColor(r, g, b);
+        }
+        controller->SetLEDsDirect(scaled_colors);
+    }
+    else
+    {
+        controller->SetLEDsDirect(colors);
+    }
 }
 
 void RGBController_MchoseG75::UpdateZoneLEDs(int /*zone*/)

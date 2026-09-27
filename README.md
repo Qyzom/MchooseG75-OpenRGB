@@ -33,9 +33,23 @@ The official vendor utility (MCHOSE HUB) is Electron-based, Windows-only, and la
 
 ---
 
-### OpenRGB Controller Files & Structure
+### Quick Start: Installing the Single-File Plugin
 
-To add native MCHOSE G75 support to OpenRGB, five core C++ files are required:
+To add **MCHOSE G75** to your existing OpenRGB installation without compiling:
+
+1. Download the pre-compiled plugin binary from the [**Releases**](https://github.com/Qyzom/MchooseG75-OpenRGB/releases/latest) page:
+   - **Windows:** Download **`OpenRGBMchoseG75Plugin.dll`**
+   - **Linux:** Download **`OpenRGBMchoseG75Plugin.so`**
+2. Open **OpenRGB**.
+3. Navigate to **Settings → Plugins → Add Plugin**.
+4. Select the downloaded `OpenRGBMchoseG75Plugin.dll` or `OpenRGBMchoseG75Plugin.so` file.
+5. The **MCHOSE G75 / G75 Pro** keyboard will automatically appear in the **Devices** tab!
+
+---
+
+### OpenRGB In-Tree C++ Module Files
+
+For developers building OpenRGB from source or submitting upstream PRs:
 
 | File Name | Purpose / Role |
 | :--- | :--- |
@@ -44,6 +58,7 @@ To add native MCHOSE G75 support to OpenRGB, five core C++ files are required:
 | **`RGBController_MchoseG75.h`** | Header for OpenRGB controller interface binding. |
 | **`RGBController_MchoseG75.cpp`** | OpenRGB matrix layout mapping, LED naming, color plane encoding, and mode registrations. |
 | **`MchoseG75Detect.cpp`** | OpenRGB HID detector registering both Wired (`0x258A:0x010C`) and Wireless (`0x41E4:0x2001`) PIDs. |
+| **`plugin/MchoseG75Plugin.cpp`** | Standalone dynamic plugin wrapper for OpenRGB plugin interface. |
 
 ---
 

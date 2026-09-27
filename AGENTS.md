@@ -102,7 +102,8 @@ All GitHub releases across the repository **must strictly adhere to the followin
 [Full Changelog](https://github.com/Qyzom/MchooseG75-OpenRGB/commits/main)
 
 ### Release Assets
-- **`openrgb_mchose_g75.tar.gz`** — Ready-to-build native OpenRGB C++ controller module files.
+- **`OpenRGBMchoseG75Plugin.dll`** — Single-file OpenRGB plugin for Windows 10/11 x64 (Load via Settings -> Plugins -> Add Plugin).
+- **`OpenRGBMchoseG75Plugin.so`** — Single-file OpenRGB plugin for Linux x86_64 (Load via Settings -> Plugins -> Add Plugin).
 ```
 
 ### Release Rules & Workflow:

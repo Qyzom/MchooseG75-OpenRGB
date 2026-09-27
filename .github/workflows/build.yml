@@ -1,26 +1,69 @@
-name: CI & Build Validation
+name: Build & Release OpenRGB Plugins
 
 on:
   push:
     branches: [ main, master ]
+    tags: [ 'v*' ]
   pull_request:
     branches: [ main, master ]
 
 jobs:
-  validate-cpp:
-    name: Validate OpenRGB C++ Compilation
+  build-linux:
+    name: Build Linux Plugin (.so)
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Checkout OpenRGB Headers
+        run: |
+          git clone --depth 1 https://github.com/CalcProgrammer1/OpenRGB.git openrgb_src
 
       - name: Install Build Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential libhidapi-dev
+          sudo apt-get install -y build-essential cmake qtbase5-dev qttools5-dev-tools libhidapi-dev
 
-      - name: Verify C++ Syntax
+      - name: Build Plugin Shared Library
         run: |
-          g++ -c -std=c++17 -DUSE_HIDAPI openrgb/MchoseG75Controller.cpp -Iopenrgb/ -I/usr/include/hidapi -o /dev/null
-          g++ -c -std=c++17 -DUSE_HIDAPI openrgb/RGBController_MchoseG75.cpp -Iopenrgb/ -I/usr/include/hidapi -o /dev/null
+          mkdir build && cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+          cmake --build . --config Release
+
+      - name: Upload Linux Plugin Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: OpenRGBMchoseG75Plugin-Linux
+          path: build/libOpenRGBMchoseG75Plugin.so
+
+  build-windows:
+    name: Build Windows Plugin (.dll)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Checkout OpenRGB Headers
+        run: |
+          git clone --depth 1 https://github.com/CalcProgrammer1/OpenRGB.git openrgb_src
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '5.15.2'
+          arch: 'win64_msvc2019_64'
+
+      - name: Build Plugin Dynamic Library
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+          cmake --build . --config Release
+
+      - name: Upload Windows Plugin Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: OpenRGBMchoseG75Plugin-Windows
+          path: build/Release/OpenRGBMchoseG75Plugin.dll

@@ -16,10 +16,16 @@
 #include <thread>
 #include "RGBController.h"
 
-#ifdef USE_HIDAPI
-#include <hidapi/hidapi.h>
+#if defined(__has_include)
+  #if __has_include(<hidapi/hidapi.h>)
+    #include <hidapi/hidapi.h>
+  #elif __has_include(<hidapi.h>)
+    #include <hidapi.h>
+  #else
+    #include "hidapi.h"
+  #endif
 #else
-#include "hidapi.h"
+  #include <hidapi/hidapi.h>
 #endif
 
 enum

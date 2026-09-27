@@ -61,10 +61,11 @@ jobs:
           git clone --recursive --depth 1 https://github.com/CalcProgrammer1/OpenRGB.git openrgb_src
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v3
+        uses: jurplel/install-qt-action@v4
         with:
           version: '5.15.2'
           arch: 'win64_msvc2019_64'
+          modules: 'qtbase'
 
       - name: Build Plugin Dynamic Library
         run: |

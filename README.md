@@ -50,36 +50,6 @@ To add **MCHOSE G75** to your existing OpenRGB installation:
 
 ---
 
-#### Option B: In-Tree Source Code Build (For OpenRGB Developers)
-
-For developers compiling OpenRGB from source or submitting upstream PRs:
-
-1. Copy the `openrgb/` module directory into your local OpenRGB repository under `Controllers/MchoseG75Controller/`:
-   ```bash
-   cp -r openrgb/ /path/to/OpenRGB/Controllers/MchoseG75Controller
-   ```
-
-2. Register the module in `OpenRGB.pro`:
-   ```qmake
-   HEADERS += \
-       Controllers/MchoseG75Controller/MchoseG75Controller.h \
-       Controllers/MchoseG75Controller/RGBController_MchoseG75.h
-
-   SOURCES += \
-       Controllers/MchoseG75Controller/MchoseG75Controller.cpp \
-       Controllers/MchoseG75Controller/RGBController_MchoseG75.cpp \
-       Controllers/MchoseG75Controller/MchoseG75Detect.cpp
-   ```
-
-3. Build & Install OpenRGB:
-   ```bash
-   qmake OpenRGB.pro
-   make -j$(nproc)
-   sudo make install
-   ```
-
----
-
 ### Hardware Protocol Specification (USB HID)
 
 #### 1. Device Identifiers

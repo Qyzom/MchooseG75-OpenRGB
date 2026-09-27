@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv
+env/
+venv/
+
+# Build outputs & PCAP dumps
+*.pcap
+*.pcapng
+*.log
+*.decomp.js
+*.exe
+*.dll
+*.o
+*.a
+*.obj
+build/
+bin/
+
+# Release assets
+openrgb_mchose_g75.tar.gz
+release_notes.md
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

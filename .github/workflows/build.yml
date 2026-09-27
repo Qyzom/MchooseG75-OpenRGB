@@ -1,0 +1,26 @@
+name: CI & Build Validation
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  validate-cpp:
+    name: Validate OpenRGB C++ Compilation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Build Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libhidapi-dev
+
+      - name: Verify C++ Syntax
+        run: |
+          g++ -c -std=c++17 -DUSE_HIDAPI openrgb/MchoseG75Controller.cpp -Iopenrgb/ -I/usr/include/hidapi -o /dev/null
+          g++ -c -std=c++17 -DUSE_HIDAPI openrgb/RGBController_MchoseG75.cpp -Iopenrgb/ -I/usr/include/hidapi -o /dev/null

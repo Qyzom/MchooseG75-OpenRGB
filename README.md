@@ -72,11 +72,10 @@ Color data is stored in contiguous planar arrays:
 - `Byte 4`: `0x01` (Direct Matrix Mode)
 - `Byte 5`: `0x00`
 - `Bytes 6..7`: `0x80, 0x01` (Data Size: `0x0180` = 384 bytes)
-- `Byte 8`: `0x00`
-- `Bytes 9..134`: Red Plane (126 bytes)
-- `Bytes 135..260`: Green Plane (126 bytes)
-- `Bytes 261..386`: Blue Plane (126 bytes)
-- `Bytes 387..519`: Zero Padding (`0x00`)
+- `Bytes 8..133`: Red Plane (126 bytes)
+- `Bytes 134..259`: Green Plane (126 bytes)
+- `Bytes 260..385`: Blue Plane (126 bytes)
+- `Bytes 386..519`: Zero Padding (`0x00`)
 
 #### 4. Wireless Protocol Packet Layout (20 Bytes - Output Report `0x13`)
 - `Byte 0`: `0x13` (Report ID)

@@ -181,20 +181,20 @@ void MchoseG75Controller::SetLEDsDirectWired(const std::vector<RGBColor>& colors
     unsigned char buf[MCHOSE_G75_WIRED_BUF_SIZE];
     memset(buf, 0x00, sizeof(buf));
 
-    // Header (9 bytes) for MCHOSE G75 Wired Feature Report
+    // Header (8 bytes) for MCHOSE G75 Wired Feature Report
     buf[0x00] = 0x06; // Report ID
     buf[0x01] = 0x06; // Lighting command
     buf[0x04] = 0x01; // Direct Matrix Mode
     buf[0x06] = 0x80; // Size low (0x0180 = 384 bytes)
     buf[0x07] = 0x01; // Size high
 
-    // Planar RGB: Red[126] -> Green[126] -> Blue[126] starting at offset 0x09
+    // Planar RGB: Red[126] -> Green[126] -> Blue[126] starting at offset 0x08
     size_t count = (colors.size() < MCHOSE_G75_LEDS_COUNT) ? colors.size() : MCHOSE_G75_LEDS_COUNT;
     for(size_t i = 0; i < count; ++i)
     {
-        buf[0x09 + i]                            = RGBGetRValue(colors[i]);
-        buf[0x09 + MCHOSE_G75_LEDS_COUNT + i]     = RGBGetGValue(colors[i]);
-        buf[0x09 + 2 * MCHOSE_G75_LEDS_COUNT + i] = RGBGetBValue(colors[i]);
+        buf[0x08 + i]                            = RGBGetRValue(colors[i]);
+        buf[0x08 + MCHOSE_G75_LEDS_COUNT + i]     = RGBGetGValue(colors[i]);
+        buf[0x08 + 2 * MCHOSE_G75_LEDS_COUNT + i] = RGBGetBValue(colors[i]);
     }
 
     int ret = -1;

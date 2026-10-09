@@ -2,10 +2,10 @@
     "Id": "org.openrgb.mchoseg75",
     "Name": "MCHOSE G75 Plugin",
     "VendorId": "openrgb",
-    "Version": "1.0.1",
-    "VersionStr": "1.0.1",
+    "Version": "1.0.2",
+    "VersionStr": "1.0.2",
     "Url": "https://github.com/Qyzom/MchooseG75-OpenRGB",
-    "Commit": "1.0.1",
+    "Commit": "1.0.2",
     "Description": "Native driver plugin for MCHOSE G75 / G75 Pro Mechanical Keyboard (Wired & 2.4G Wireless)",
     "OpenRGBPluginAPIVersion": 5
 }

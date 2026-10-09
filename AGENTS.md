@@ -26,11 +26,11 @@ The driver implements dual-mode protocol resolution depending on the connection 
 - **Transfer Method:** Single-shot HID Feature Report (`SET_REPORT`, Control Endpoint `0x00`).
 - **Packet Length:** Exactly **520 bytes**.
 - **Buffer Structure:**
-  - `Header` (Bytes 0..8): `06 06 00 00 01 00 80 01 00`
-  - `Red Plane` (Bytes 9..134): 126 bytes
-  - `Green Plane` (Bytes 135..260): 126 bytes
-  - `Blue Plane` (Bytes 261..386): 126 bytes
-  - `Padding` (Bytes 387..519): 133 Zeros (`0x00`)
+  - `Header` (Bytes 0..7): `06 06 00 00 01 00 80 01` (8 bytes)
+  - `Red Plane` (Bytes 8..133): 126 bytes
+  - `Green Plane` (Bytes 134..259): 126 bytes
+  - `Blue Plane` (Bytes 260..385): 126 bytes
+  - `Padding` (Bytes 386..519): 134 Zeros (`0x00`)
 - **Latency / Performance:** 0ms inter-chunk delay. Sent as a single atomic USB transfer.
 
 ### B. Wireless 2.4G Receiver Mode

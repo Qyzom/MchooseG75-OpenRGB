@@ -67,7 +67,7 @@ private:
     std::string location;
     int         mode;
 
-    std::mutex              dev_mutex;
+    std::recursive_mutex    dev_mutex;
     std::mutex              update_mutex;
     std::condition_variable update_cv;
     std::thread             worker_thread;

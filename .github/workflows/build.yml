@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   build-linux-qt6:
-    name: Build Linux Plugin (Qt 6 .so)
+    name: Build Linux Plugins (Qt 6 .so)
     runs-on: ubuntu-latest
 
     steps:
@@ -28,27 +28,29 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential cmake qt6-base-dev qt6-tools-dev libhidapi-dev
 
-      - name: Build Plugin Shared Library
+      - name: Build Plugins Shared Libraries
         run: |
           mkdir build && cd build
           cmake .. -DCMAKE_BUILD_TYPE=Release
-          cmake --build . --config Release
+          cmake --build . --config Release -j$(nproc)
 
-      - name: Rename Linux Plugin
+      - name: Copy Linux Plugins
         run: |
-          cp build/libOpenRGBMchoseG75Plugin.so OpenRGBMchoseG75Plugin.so
-          cp build/libOpenRGBMchoseG75Plugin.so OpenRGBMchoseG75Plugin-Qt6.so
+          cp build/OpenRGBMchoseG75WiredPlugin.so OpenRGBMchoseG75WiredPlugin.so
+          cp build/OpenRGBMchoseG75WirelessPlugin.so OpenRGBMchoseG75WirelessPlugin.so
+          cp build/OpenRGBMchoseG75Plugin.so OpenRGBMchoseG75Plugin.so
 
-      - name: Upload Linux Plugin Artifact
+      - name: Upload Linux Plugins Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: OpenRGBMchoseG75Plugin-Linux-Qt6
+          name: OpenRGB-MchoseG75-Linux-Qt6
           path: |
+            OpenRGBMchoseG75WiredPlugin.so
+            OpenRGBMchoseG75WirelessPlugin.so
             OpenRGBMchoseG75Plugin.so
-            OpenRGBMchoseG75Plugin-Qt6.so
 
   build-linux-qt5:
-    name: Build Linux Plugin (Qt 5 .so)
+    name: Build Linux Plugins (Qt 5 .so)
     runs-on: ubuntu-latest
 
     steps:
@@ -64,24 +66,29 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential cmake qtbase5-dev qttools5-dev-tools libhidapi-dev
 
-      - name: Build Plugin Shared Library
+      - name: Build Plugins Shared Libraries
         run: |
           mkdir build && cd build
           cmake .. -DCMAKE_BUILD_TYPE=Release
-          cmake --build . --config Release
+          cmake --build . --config Release -j$(nproc)
 
-      - name: Rename Linux Plugin
+      - name: Copy Linux Plugins (Qt5)
         run: |
-          cp build/libOpenRGBMchoseG75Plugin.so OpenRGBMchoseG75Plugin-Qt5.so
+          cp build/OpenRGBMchoseG75WiredPlugin.so OpenRGBMchoseG75WiredPlugin-Qt5.so
+          cp build/OpenRGBMchoseG75WirelessPlugin.so OpenRGBMchoseG75WirelessPlugin-Qt5.so
+          cp build/OpenRGBMchoseG75Plugin.so OpenRGBMchoseG75Plugin-Qt5.so
 
-      - name: Upload Linux Plugin Artifact
+      - name: Upload Linux Qt5 Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: OpenRGBMchoseG75Plugin-Linux-Qt5
-          path: OpenRGBMchoseG75Plugin-Qt5.so
+          name: OpenRGB-MchoseG75-Linux-Qt5
+          path: |
+            OpenRGBMchoseG75WiredPlugin-Qt5.so
+            OpenRGBMchoseG75WirelessPlugin-Qt5.so
+            OpenRGBMchoseG75Plugin-Qt5.so
 
   build-windows:
-    name: Build Windows Plugin (.dll)
+    name: Build Windows Plugins (.dll)
     runs-on: windows-latest
 
     steps:
@@ -98,22 +105,28 @@ jobs:
           version: '5.15.2'
           arch: 'win64_msvc2019_64'
 
-      - name: Build Plugin Dynamic Library
+      - name: Build Plugins Dynamic Libraries
         run: |
           mkdir build
           cd build
           cmake .. -DCMAKE_BUILD_TYPE=Release
           cmake --build . --config Release
 
-      - name: Copy Windows Plugin
+      - name: Copy Windows Plugins
+        shell: bash
         run: |
-          copy build\Release\OpenRGBMchoseG75Plugin.dll OpenRGBMchoseG75Plugin.dll
+          cp build/Release/OpenRGBMchoseG75WiredPlugin.dll OpenRGBMchoseG75WiredPlugin.dll
+          cp build/Release/OpenRGBMchoseG75WirelessPlugin.dll OpenRGBMchoseG75WirelessPlugin.dll
+          cp build/Release/OpenRGBMchoseG75Plugin.dll OpenRGBMchoseG75Plugin.dll
 
-      - name: Upload Windows Plugin Artifact
+      - name: Upload Windows Plugins Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: OpenRGBMchoseG75Plugin-Windows
-          path: OpenRGBMchoseG75Plugin.dll
+          name: OpenRGB-MchoseG75-Windows
+          path: |
+            OpenRGBMchoseG75WiredPlugin.dll
+            OpenRGBMchoseG75WirelessPlugin.dll
+            OpenRGBMchoseG75Plugin.dll
 
   release:
     name: Publish GitHub Release
@@ -124,19 +137,19 @@ jobs:
       - name: Download Linux Qt6 Artifact
         uses: actions/download-artifact@v4
         with:
-          name: OpenRGBMchoseG75Plugin-Linux-Qt6
+          name: OpenRGB-MchoseG75-Linux-Qt6
           path: release_assets
 
       - name: Download Linux Qt5 Artifact
         uses: actions/download-artifact@v4
         with:
-          name: OpenRGBMchoseG75Plugin-Linux-Qt5
+          name: OpenRGB-MchoseG75-Linux-Qt5
           path: release_assets
 
       - name: Download Windows Artifact
         uses: actions/download-artifact@v4
         with:
-          name: OpenRGBMchoseG75Plugin-Windows
+          name: OpenRGB-MchoseG75-Windows
           path: release_assets
 
       - name: Create or Update GitHub Release

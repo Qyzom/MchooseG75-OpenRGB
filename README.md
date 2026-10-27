@@ -33,23 +33,36 @@ The official vendor utility (MCHOSE HUB) is Electron-based, heavy on resources, 
 
 ---
 
+### Important: Keyboard Hardware Mode (Важно: переключение режима)
+
+> [!IMPORTANT]
+> **Чтобы управление через OpenRGB работало корректно без сброса в радугу:**
+> Нажмите на клавиатуре сочетание клавиш **`Fn + \|`** (обратный слэш над Enter) один или несколько раз. Это переключает встроенный профиль подсветки клавиатуры, отключая аппаратную анимацию бегущей волны/радуги, которая в противном случае будет перебивать сигналы софта.
+> В будущем планируется более глубокий разбор внутренних аппаратных режимов клавиатуры.
+> 
+> *Если подсветка зависла или ведёт себя некорректно:* зажмите **`Fn + Esc`** на 5 секунд для полного сброса клавиатуры до заводских настроек (клавиатура мигнет 3 раза).
+
+---
+
 ### Installation Guide
 
-#### Option A: Single-File Plugin Installation (No Compilation Required)
+#### Option A: Dedicated Single-File Plugins (Recommended)
 
-To add **MCHOSE G75** to your existing OpenRGB installation:
+The repository provides separate plugins for Wired and 2.4G Wireless connections to ensure zero interference between USB interfaces:
 
 1. Go to the [**Releases**](https://github.com/Qyzom/MchooseG75-OpenRGB/releases/latest) page.
-2. Download the pre-compiled single-file plugin for your OS:
-   - **Windows 10/11 (x64):** Download **`OpenRGBMchoseG75Plugin.dll`**
-   - **Linux (x86_64 Qt 6 / OpenRGB 1.0):** Download **`OpenRGBMchoseG75Plugin.so`** (or `OpenRGBMchoseG75Plugin-Qt6.so`)
-   - **Linux (x86_64 Qt 5):** Download **`OpenRGBMchoseG75Plugin-Qt5.so`**
-3. Open **OpenRGB** (requires OpenRGB 1.0 or Pipeline build).
-4. Go to **Settings → Plugins → Install Plugin** (or drag & drop the file into the plugins list).
-   > **Linux Tip:** If the file chooser does not allow selecting the `.so` file, simply copy it directly to your OpenRGB plugins folder:
-   > `mkdir -p ~/.config/OpenRGB/plugins && cp OpenRGBMchoseG75Plugin.so ~/.config/OpenRGB/plugins/`
-   > (or `~/.var/app/org.openrgb.OpenRGB/config/OpenRGB/plugins/` for Flatpak), then restart OpenRGB.
-5. The **MCHOSE G75 / G75 Pro** keyboard will automatically appear in the **Devices** tab!
+2. Download the plugin for your preferred connection mode and OS:
+   - **Wired Connection (USB Type-C):**
+     - Linux (Qt 6): **`OpenRGBMchoseG75WiredPlugin.so`**
+     - Linux (Qt 5): **`OpenRGBMchoseG75WiredPlugin-Qt5.so`**
+     - Windows: **`OpenRGBMchoseG75WiredPlugin.dll`**
+   - **Wireless Connection (2.4G USB Dongle):**
+     - Linux (Qt 6): **`OpenRGBMchoseG75WirelessPlugin.so`**
+     - Linux (Qt 5): **`OpenRGBMchoseG75WirelessPlugin-Qt5.so`**
+     - Windows: **`OpenRGBMchoseG75WirelessPlugin.dll`**
+3. Open **OpenRGB**.
+4. Go to **Settings → Plugins → Install Plugin** (or copy to `~/.config/OpenRGB/plugins/` on Linux / `~/.var/app/org.openrgb.OpenRGB/config/OpenRGB/plugins/` on Flatpak).
+5. The keyboard will appear in the **Devices** tab!
 
 ---
 

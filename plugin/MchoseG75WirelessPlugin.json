@@ -1,0 +1,11 @@
+{
+    "Id": "org.openrgb.mchoseg75.wireless",
+    "Name": "MCHOSE G75 Wireless Plugin",
+    "VendorId": "openrgb",
+    "Version": "1.0.3",
+    "VersionStr": "1.0.3",
+    "Url": "https://github.com/Qyzom/MchooseG75-OpenRGB",
+    "Commit": "1.0.3",
+    "Description": "Native OpenRGB driver plugin for MCHOSE G75 (2.4G Wireless Dongle)",
+    "OpenRGBPluginAPIVersion": 5
+}

@@ -33,7 +33,7 @@ MchoseG75Controller::~MchoseG75Controller()
         worker_thread.join();
     }
 
-    std::lock_guard<std::mutex> lock(dev_mutex);
+    std::lock_guard<std::recursive_mutex> lock(dev_mutex);
     if(dev)
     {
         hid_close(dev);
@@ -43,7 +43,7 @@ MchoseG75Controller::~MchoseG75Controller()
 
 void MchoseG75Controller::Reconnect()
 {
-    std::lock_guard<std::mutex> lock(dev_mutex);
+    std::lock_guard<std::recursive_mutex> lock(dev_mutex);
     if(dev)
     {
         hid_close(dev);
@@ -58,7 +58,21 @@ void MchoseG75Controller::Reconnect()
 
     while(cur_dev)
     {
+        bool is_match = false;
+#ifdef _WIN32
+        if(cur_dev->interface_number == 1 &&
+           ((mode == MCHOSE_G75_MODE_WIRED && cur_dev->usage_page == 0xFF00) ||
+            (mode == MCHOSE_G75_MODE_WIRELESS && cur_dev->usage_page == 0xFF02)))
+        {
+            is_match = true;
+        }
+#else
         if(cur_dev->interface_number == 1)
+        {
+            is_match = true;
+        }
+#endif
+        if(is_match)
         {
             hid_device* new_dev = hid_open_path(cur_dev->path);
             if(new_dev)
@@ -90,7 +104,7 @@ int MchoseG75Controller::GetConnectionMode()
 
 std::string MchoseG75Controller::GetSerialString()
 {
-    std::lock_guard<std::mutex> lock(dev_mutex);
+    std::lock_guard<std::recursive_mutex> lock(dev_mutex);
     if(!dev)
     {
         return "";
@@ -199,7 +213,7 @@ void MchoseG75Controller::SetLEDsDirectWired(const std::vector<RGBColor>& colors
 
     int ret = -1;
     {
-        std::lock_guard<std::mutex> lock(dev_mutex);
+        std::lock_guard<std::recursive_mutex> lock(dev_mutex);
         if(dev)
         {
             ret = hid_send_feature_report(dev, buf, MCHOSE_G75_WIRED_BUF_SIZE);
@@ -209,7 +223,7 @@ void MchoseG75Controller::SetLEDsDirectWired(const std::vector<RGBColor>& colors
     if(ret < 0)
     {
         Reconnect();
-        std::lock_guard<std::mutex> lock(dev_mutex);
+        std::lock_guard<std::recursive_mutex> lock(dev_mutex);
         if(dev)
         {
             hid_send_feature_report(dev, buf, MCHOSE_G75_WIRED_BUF_SIZE);
@@ -231,7 +245,7 @@ void MchoseG75Controller::SetLEDsDirectWireless(const std::vector<RGBColor>& col
         raw_buffer[2 * MCHOSE_G75_LEDS_COUNT + i] = RGBGetBValue(colors[i]);
     }
 
-    std::lock_guard<std::mutex> lock(dev_mutex);
+    std::lock_guard<std::recursive_mutex> lock(dev_mutex);
     if(!dev)
     {
         Reconnect();
@@ -268,6 +282,7 @@ void MchoseG75Controller::SetLEDsDirectWireless(const std::vector<RGBColor>& col
         int written = hid_write(dev, packet, 20);
         if(written < 0)
         {
+            Reconnect();
             break;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(5));

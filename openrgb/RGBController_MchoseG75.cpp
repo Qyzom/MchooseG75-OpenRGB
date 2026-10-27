@@ -58,7 +58,7 @@ RGBController_MchoseG75::RGBController_MchoseG75(MchoseG75Controller* controller
     Static.colors_max     = 1;
     Static.color_mode     = MODE_COLORS_MODE_SPECIFIC;
     Static.colors.resize(1);
-    Static.colors[0]      = ToRGBColor(255, 0, 0);
+    Static.colors[0]      = ToRGBColor(0, 255, 255);
     Static.brightness_min = 0;
     Static.brightness_max = 100;
     Static.brightness     = 100;
@@ -69,6 +69,7 @@ RGBController_MchoseG75::RGBController_MchoseG75(MchoseG75Controller* controller
 
 RGBController_MchoseG75::~RGBController_MchoseG75()
 {
+    Shutdown();
     delete controller;
 }
 

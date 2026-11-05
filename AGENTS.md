@@ -85,7 +85,6 @@ MchooseG75-OpenRGB/
 │   ├── MchoseG75PluginCommon.cpp       # Common scanning, lifecycle, and virtual controller logic
 │   ├── MchoseG75WiredPlugin.h/.cpp     # Dedicated Wired plugin (USB Type-C)
 │   ├── MchoseG75WirelessPlugin.h/.cpp  # Dedicated Wireless plugin (2.4G Receiver)
-│   ├── MchoseG75Plugin.h/.cpp          # Combined plugin (Wired & 2.4G Wireless)
 │   └── *.json                          # OpenRGB plugin metadata descriptors
 ├── CMakeLists.txt                      # Multi-target CMake build configuration
 ├── AGENTS.md                           # Developer architecture & guidelines documentation
@@ -111,8 +110,8 @@ All GitHub releases across the repository **must strictly adhere to the followin
 [Full Changelog](https://github.com/Qyzom/MchooseG75-OpenRGB/commits/main)
 
 ### Release Assets
-- **`OpenRGBMchoseG75Plugin.dll`** — Single-file OpenRGB plugin for Windows 10/11 x64 (Load via Settings -> Plugins -> Add Plugin).
-- **`OpenRGBMchoseG75Plugin.so`** — Single-file OpenRGB plugin for Linux x86_64 (Load via Settings -> Plugins -> Add Plugin).
+- **`OpenRGBMchoseG75WiredPlugin.so`** / **`.dll`** — Dedicated plugin for Wired USB Type-C connection.
+- **`OpenRGBMchoseG75WirelessPlugin.so`** / **`.dll`** — Dedicated plugin for 2.4G Wireless Dongle connection.
 ```
 
 ### Release Rules & Workflow:

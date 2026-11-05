@@ -38,7 +38,6 @@ jobs:
         run: |
           cp build/OpenRGBMchoseG75WiredPlugin.so OpenRGBMchoseG75WiredPlugin.so
           cp build/OpenRGBMchoseG75WirelessPlugin.so OpenRGBMchoseG75WirelessPlugin.so
-          cp build/OpenRGBMchoseG75Plugin.so OpenRGBMchoseG75Plugin.so
 
       - name: Upload Linux Plugins Artifact
         uses: actions/upload-artifact@v4
@@ -47,7 +46,6 @@ jobs:
           path: |
             OpenRGBMchoseG75WiredPlugin.so
             OpenRGBMchoseG75WirelessPlugin.so
-            OpenRGBMchoseG75Plugin.so
 
   build-linux-qt5:
     name: Build Linux Plugins (Qt 5 .so)
@@ -76,7 +74,6 @@ jobs:
         run: |
           cp build/OpenRGBMchoseG75WiredPlugin.so OpenRGBMchoseG75WiredPlugin-Qt5.so
           cp build/OpenRGBMchoseG75WirelessPlugin.so OpenRGBMchoseG75WirelessPlugin-Qt5.so
-          cp build/OpenRGBMchoseG75Plugin.so OpenRGBMchoseG75Plugin-Qt5.so
 
       - name: Upload Linux Qt5 Artifact
         uses: actions/upload-artifact@v4
@@ -85,7 +82,6 @@ jobs:
           path: |
             OpenRGBMchoseG75WiredPlugin-Qt5.so
             OpenRGBMchoseG75WirelessPlugin-Qt5.so
-            OpenRGBMchoseG75Plugin-Qt5.so
 
   build-windows:
     name: Build Windows Plugins (.dll)
@@ -117,7 +113,6 @@ jobs:
         run: |
           cp build/Release/OpenRGBMchoseG75WiredPlugin.dll OpenRGBMchoseG75WiredPlugin.dll
           cp build/Release/OpenRGBMchoseG75WirelessPlugin.dll OpenRGBMchoseG75WirelessPlugin.dll
-          cp build/Release/OpenRGBMchoseG75Plugin.dll OpenRGBMchoseG75Plugin.dll
 
       - name: Upload Windows Plugins Artifact
         uses: actions/upload-artifact@v4
@@ -126,7 +121,6 @@ jobs:
           path: |
             OpenRGBMchoseG75WiredPlugin.dll
             OpenRGBMchoseG75WirelessPlugin.dll
-            OpenRGBMchoseG75Plugin.dll
 
   release:
     name: Publish GitHub Release

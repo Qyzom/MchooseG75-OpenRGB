@@ -33,7 +33,7 @@ set(COMMON_INCLUDES
     /usr/include/hidapi
 )
 
-# 1. Wired Plugin
+# 1. Wired Plugin (USB Type-C)
 add_library(OpenRGBMchoseG75WiredPlugin SHARED
     plugin/MchoseG75WiredPlugin.h
     plugin/MchoseG75WiredPlugin.cpp
@@ -47,7 +47,7 @@ target_link_libraries(OpenRGBMchoseG75WiredPlugin PRIVATE
 )
 set_target_properties(OpenRGBMchoseG75WiredPlugin PROPERTIES PREFIX "")
 
-# 2. Wireless Plugin (2.4G)
+# 2. Wireless Plugin (2.4G USB Dongle)
 add_library(OpenRGBMchoseG75WirelessPlugin SHARED
     plugin/MchoseG75WirelessPlugin.h
     plugin/MchoseG75WirelessPlugin.cpp
@@ -61,22 +61,8 @@ target_link_libraries(OpenRGBMchoseG75WirelessPlugin PRIVATE
 )
 set_target_properties(OpenRGBMchoseG75WirelessPlugin PROPERTIES PREFIX "")
 
-# 3. Combined Plugin (Wired + Wireless)
-add_library(OpenRGBMchoseG75Plugin SHARED
-    plugin/MchoseG75Plugin.h
-    plugin/MchoseG75Plugin.cpp
-    ${COMMON_SOURCES}
-)
-target_include_directories(OpenRGBMchoseG75Plugin PRIVATE ${COMMON_INCLUDES})
-target_link_libraries(OpenRGBMchoseG75Plugin PRIVATE
-    Qt${QT_VERSION_MAJOR}::Core
-    Qt${QT_VERSION_MAJOR}::Gui
-    Qt${QT_VERSION_MAJOR}::Widgets
-)
-set_target_properties(OpenRGBMchoseG75Plugin PROPERTIES PREFIX "")
-
 # Link HIDAPI
-set(ALL_TARGETS OpenRGBMchoseG75WiredPlugin OpenRGBMchoseG75WirelessPlugin OpenRGBMchoseG75Plugin)
+set(ALL_TARGETS OpenRGBMchoseG75WiredPlugin OpenRGBMchoseG75WirelessPlugin)
 
 foreach(tgt ${ALL_TARGETS})
     if(WIN32)

@@ -70,19 +70,28 @@ The keyboard uses a 6-row by 16-column matrix topology:
 MchooseG75-OpenRGB/
 ├── .github/
 │   └── workflows/
-│       └── build.yml               # Automated CI validation pipeline
-├── openrgb/                        # Native OpenRGB C++ controller module
-│   ├── MchoseG75Controller.h       # HID transport driver header
-│   ├── MchoseG75Controller.cpp     # Wired & wireless protocol implementation
-│   ├── RGBController_MchoseG75.h   # OpenRGB controller header
-│   ├── RGBController_MchoseG75.cpp # OpenRGB matrix, zone, and LED bindings
-│   ├── MchoseG75Detect.cpp         # OpenRGB HID detector registration
-│   └── README.md                   # Integration guide for OpenRGB
-├── mchose_g75_protocol.md          # Full protocol reverse engineering specification
-├── AGENTS.md                       # Developer architecture documentation
-├── README.md                       # Main repository documentation
-├── LICENSE                         # MIT License
-└── .gitignore                      # Git ignore file
+│       └── build.yml                   # Automated CI multi-platform build pipeline
+├── openrgb/                            # Native OpenRGB C++ controller module
+│   ├── MchoseG75Controller.h           # Low-level HID hardware transport driver header
+│   ├── MchoseG75Controller.cpp         # Wired & wireless protocol implementation
+│   ├── MchoseG75Matrix.h               # Shared matrix map and key label definitions
+│   ├── RGBController_MchoseG75.h       # OpenRGB RGBController header
+│   ├── RGBController_MchoseG75.cpp     # OpenRGB matrix, zones, modes, and brightness
+│   ├── MchoseG75Detect.cpp             # OpenRGB HID detector registration
+│   └── README.md                       # OpenRGB in-tree integration guide
+├── plugin/                             # Standalone OpenRGB dynamic plugin module
+│   ├── LogManagerStub.cpp              # Minimal logging stub for standalone plugin builds
+│   ├── MchoseG75PluginCommon.h         # Shared plugin helpers, context, and callbacks
+│   ├── MchoseG75PluginCommon.cpp       # Common scanning, lifecycle, and virtual controller logic
+│   ├── MchoseG75WiredPlugin.h/.cpp     # Dedicated Wired plugin (USB Type-C)
+│   ├── MchoseG75WirelessPlugin.h/.cpp  # Dedicated Wireless plugin (2.4G Receiver)
+│   ├── MchoseG75Plugin.h/.cpp          # Combined plugin (Wired & 2.4G Wireless)
+│   └── *.json                          # OpenRGB plugin metadata descriptors
+├── CMakeLists.txt                      # Multi-target CMake build configuration
+├── AGENTS.md                           # Developer architecture & guidelines documentation
+├── README.md                           # Main repository documentation & protocol specifications
+├── LICENSE                             # MIT License
+└── .gitignore                          # Git ignore rules
 ```
 
 ---

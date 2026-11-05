@@ -13,9 +13,8 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets)
 # Common sources and includes
 set(COMMON_SOURCES
     plugin/LogManagerStub.cpp
-    openrgb/MchoseG75Controller.h
+    plugin/MchoseG75PluginCommon.cpp
     openrgb/MchoseG75Controller.cpp
-    openrgb/RGBController_MchoseG75.h
     openrgb/RGBController_MchoseG75.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/openrgb_src/RGBController/RGBController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/openrgb_src/StringUtils.cpp

@@ -33,14 +33,13 @@ The official vendor utility (MCHOSE HUB) is Electron-based, heavy on resources, 
 
 ---
 
-### Important: Keyboard Hardware Mode (Важно: переключение режима)
+### Important: Hardware Lighting Mode Configuration
 
 > [!IMPORTANT]
-> **Чтобы управление через OpenRGB работало корректно без сброса в радугу:**
-> Нажмите на клавиатуре сочетание клавиш **`Fn + \|`** (обратный слэш над Enter) один или несколько раз. Это переключает встроенный профиль подсветки клавиатуры, отключая аппаратную анимацию бегущей волны/радуги, которая в противном случае будет перебивать сигналы софта.
-> В будущем планируется более глубокий разбор внутренних аппаратных режимов клавиатуры.
+> **To ensure OpenRGB control functions properly without reverting to onboard rainbow effects:**  
+> Press the keyboard shortcut **`Fn + \|`** (backslash key above Enter) one or more times. This cycles through the keyboard's onboard hardware lighting presets and disables the running hardware wave/rainbow animation, which would otherwise override direct software lighting frames.
 > 
-> *Если подсветка зависла или ведёт себя некорректно:* зажмите **`Fn + Esc`** на 5 секунд для полного сброса клавиатуры до заводских настроек (клавиатура мигнет 3 раза).
+> *If the backlight becomes unresponsive or glitches:* hold **`Fn + Esc`** for 5 seconds to perform a full hardware factory reset (the keyboard backlight will flash 3 times).
 
 ---
 

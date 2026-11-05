@@ -1,44 +1,50 @@
-# MCHOSE G75 OpenRGB Native Controller
+# MCHOSE G75 OpenRGB Native Controller Module
 
-Этот модуль добавляет полную нативную поддержку клавиатуры **MCHOSE G75 / G75 Pro** в **OpenRGB**.
-
-## Возможности
-* Поддержка **проводного режима (USB Type-C)**: `VID: 0x258A`, `PID: 0x010C`
-* Поддержка **беспроводного режима (2.4G радиодонгл)**: `VID: 0x41E4`, `PID: 0x2001`
-* Прямое управление каждым отдельным светодиодом (Per-Key RGB / Direct Mode).
-* Матрица клавиш 75% формата (6 строк x 16 столбцов).
-* Максимальная скорость обновления (520 байт за один Feature Report по проводу, потоковые чанки по 2.4G).
+This module adds full native built-in controller support for the **MCHOSE G75 / G75 Pro** mechanical keyboard directly into upstream **OpenRGB**.
 
 ---
 
-## Файлы
-* `MchoseG75Controller.h` / `MchoseG75Controller.cpp` — низкоуровневый HID драйвер устройства.
-* `RGBController_MchoseG75.h` / `RGBController_MchoseG75.cpp` — контроллер OpenRGB (матрица, светодиоды, зоны).
-* `MchoseG75Detect.cpp` — регистрация автоопределения устройства в OpenRGB.
+## Features
+
+- **Wired Mode (USB Type-C):** `VID: 0x258A`, `PID: 0x010C`
+- **Wireless Mode (2.4G Receiver):** `VID: 0x41E4`, `PID: 0x2001`
+- **Full Per-Key Addressability:** Direct per-LED color control across all 126 planar RGB channels.
+- **75% Compact Matrix:** Standard 6-row by 16-column physical matrix mapping with individual key labels.
+- **Optimized Latency:** 520-byte single-shot HID Feature Reports in wired mode; 20-byte packet stream in 2.4G wireless mode.
 
 ---
 
-## Сборка с OpenRGB (Linux / Windows)
+## Source Files
 
-### 1. Клонирование OpenRGB
+- `MchoseG75Controller.h` / `MchoseG75Controller.cpp` — Low-level USB HID hardware driver and packet transport.
+- `RGBController_MchoseG75.h` / `RGBController_MchoseG75.cpp` — OpenRGB controller bindings (zones, matrix, modes, and brightness).
+- `MchoseG75Matrix.h` — Matrix topology map and human-readable key labels.
+- `MchoseG75Detect.cpp` — OpenRGB auto-detection registration for wired and wireless interfaces.
+
+---
+
+## Building Inside OpenRGB (Linux / Windows)
+
+### 1. Clone OpenRGB
 ```bash
 git clone https://gitlab.com/CalcProgrammer1/OpenRGB.git
 cd OpenRGB
 ```
 
-### 2. Добавление файлов
-Скопируйте папку `openrgb_mchose_g75` в дерево исходников OpenRGB:
+### 2. Copy Controller Files
+Copy the `openrgb` folder into OpenRGB's `Controllers` directory:
 ```bash
-cp -r /path/to/openrgb_mchose_g75 Controllers/MchoseG75Controller
+cp -r /path/to/MchooseG75-OpenRGB/openrgb Controllers/MchoseG75Controller
 ```
 
-### 3. Добавление в файл проекта `OpenRGB.pro`
-Откройте `OpenRGB.pro` и добавьте в соответствующие секции:
+### 3. Add to `OpenRGB.pro`
+Open `OpenRGB.pro` in a text editor and append the files to their respective sections:
 
 **HEADERS:**
 ```qmake
 HEADERS += \
     Controllers/MchoseG75Controller/MchoseG75Controller.h \
+    Controllers/MchoseG75Controller/MchoseG75Matrix.h \
     Controllers/MchoseG75Controller/RGBController_MchoseG75.h
 ```
 
@@ -50,11 +56,12 @@ SOURCES += \
     Controllers/MchoseG75Controller/MchoseG75Detect.cpp
 ```
 
-### 4. Компиляция на Linux
+### 4. Build OpenRGB
+On Linux:
 ```bash
 qmake OpenRGB.pro
 make -j$(nproc)
 sudo make install
 ```
 
-После запуска `openrgb` клавиатура автоматически появится в списке устройств со всеми 75% клавишами и полным управлением цветом!
+When you launch `openrgb`, the MCHOSE G75 keyboard will be automatically recognized and available under the **Devices** tab with full per-key RGB control!

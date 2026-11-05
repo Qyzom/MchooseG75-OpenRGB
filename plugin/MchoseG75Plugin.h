@@ -2,6 +2,7 @@
 | MchoseG75Plugin.h                                         |
 |                                                           |
 |   Standalone OpenRGB Device Plugin for MCHOSE G75         |
+|   (Unified Wired + Wireless Support)                      |
 |                                                           |
 |   This file is part of the OpenRGB project                |
 |   SPDX-License-Identifier: GPL-2.0-or-later               |
@@ -12,11 +13,9 @@
 #include <QObject>
 #include <QtPlugin>
 #include <vector>
-#include <string>
 #include "OpenRGBPluginInterface.h"
 #include "ResourceManagerCallback.h"
-
-struct MchoseG75DeviceContext;
+#include "MchoseG75PluginCommon.h"
 
 class MchoseG75Plugin : public QObject, public OpenRGBPluginInterface
 {
@@ -46,9 +45,6 @@ public:
     void                SettingsManagerUpdated(unsigned int) override {}
 
 private:
-    void                ScanDevices();
-    void                RegisterKeyboard(class MchoseG75Controller* ctl, const std::string& dev_path, int mode);
-
     OpenRGBPluginAPIInterface*           api;
     QWidget*                             widget;
     std::vector<MchoseG75DeviceContext*> active_devices;

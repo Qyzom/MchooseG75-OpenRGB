@@ -14,13 +14,14 @@
 
 MchoseG75Controller::MchoseG75Controller(hid_device* dev_handle, const char* path, int connection_mode)
 {
-    dev                = dev_handle;
-    location           = path ? path : "";
-    mode               = connection_mode;
-    stop_thread        = false;
-    has_pending_update = false;
+    dev                 = dev_handle;
+    location            = path ? path : "";
+    mode                = connection_mode;
+    stop_thread         = false;
+    has_pending_update  = false;
+    last_reconnect_time = std::chrono::steady_clock::time_point::min();
 
-    worker_thread      = std::thread(&MchoseG75Controller::WorkerThreadLoop, this);
+    worker_thread       = std::thread(&MchoseG75Controller::WorkerThreadLoop, this);
 }
 
 MchoseG75Controller::~MchoseG75Controller()
@@ -44,10 +45,30 @@ MchoseG75Controller::~MchoseG75Controller()
 void MchoseG75Controller::Reconnect()
 {
     std::lock_guard<std::recursive_mutex> lock(dev_mutex);
+
+    // Rate-limit reconnections to avoid hammering USB bus on disconnected devices
+    auto now = std::chrono::steady_clock::now();
+    if(std::chrono::duration_cast<std::chrono::milliseconds>(now - last_reconnect_time).count() < 2000)
+    {
+        return;
+    }
+    last_reconnect_time = now;
+
     if(dev)
     {
         hid_close(dev);
         dev = nullptr;
+    }
+
+    // Attempt direct reopen of known device path first
+    if(!location.empty())
+    {
+        hid_device* quick_dev = hid_open_path(location.c_str());
+        if(quick_dev)
+        {
+            dev = quick_dev;
+            return;
+        }
     }
 
     uint16_t vid = (mode == MCHOSE_G75_MODE_WIRED) ? MCHOSE_G75_WIRED_VID : MCHOSE_G75_WIRELESS_VID;
@@ -58,27 +79,50 @@ void MchoseG75Controller::Reconnect()
 
     while(cur_dev)
     {
+        std::string dev_path = cur_dev->path ? cur_dev->path : "";
         bool is_match = false;
+
 #ifdef _WIN32
-        if(cur_dev->interface_number == 1 &&
-           ((mode == MCHOSE_G75_MODE_WIRED && cur_dev->usage_page == 0xFF00) ||
-            (mode == MCHOSE_G75_MODE_WIRELESS && cur_dev->usage_page == 0xFF02)))
+        if(cur_dev->interface_number == 1)
         {
-            is_match = true;
+            if(mode == MCHOSE_G75_MODE_WIRED &&
+               (cur_dev->usage_page == 0xFF00 ||
+                dev_path.find("col06") != std::string::npos ||
+                dev_path.find("Col06") != std::string::npos))
+            {
+                is_match = true;
+            }
+            else if(mode == MCHOSE_G75_MODE_WIRELESS &&
+                    (cur_dev->usage_page == 0xFF02 ||
+                     dev_path.find("col01") != std::string::npos ||
+                     dev_path.find("Col01") != std::string::npos))
+            {
+                is_match = true;
+            }
         }
 #else
         if(cur_dev->interface_number == 1)
         {
-            is_match = true;
+            if(mode == MCHOSE_G75_MODE_WIRED &&
+               (cur_dev->usage_page == 0 || cur_dev->usage_page == 0xFF00))
+            {
+                is_match = true;
+            }
+            else if(mode == MCHOSE_G75_MODE_WIRELESS &&
+                    (cur_dev->usage_page == 0 || cur_dev->usage_page == 0xFF02))
+            {
+                is_match = true;
+            }
         }
 #endif
+
         if(is_match)
         {
             hid_device* new_dev = hid_open_path(cur_dev->path);
             if(new_dev)
             {
                 dev      = new_dev;
-                location = cur_dev->path ? cur_dev->path : "";
+                location = dev_path;
                 break;
             }
         }
@@ -147,7 +191,7 @@ void MchoseG75Controller::WorkerThreadLoop()
                 return stop_thread.load() || has_pending_update;
             });
 
-            if(stop_thread && !has_pending_update)
+            if(stop_thread)
             {
                 break;
             }
@@ -160,17 +204,17 @@ void MchoseG75Controller::WorkerThreadLoop()
                 update_cv.wait_for(lock, wait_time, [this]() {
                     return stop_thread.load();
                 });
-                if(stop_thread && !has_pending_update)
+                if(stop_thread)
                 {
                     break;
                 }
             }
 
-            colors_to_send     = pending_colors;
+            colors_to_send     = std::move(pending_colors);
             has_pending_update = false;
         }
 
-        if(!colors_to_send.empty())
+        if(!colors_to_send.empty() && !stop_thread)
         {
             SendFrame(colors_to_send);
             last_send_time = std::chrono::steady_clock::now();
@@ -233,7 +277,7 @@ void MchoseG75Controller::SetLEDsDirectWired(const std::vector<RGBColor>& colors
 
 void MchoseG75Controller::SetLEDsDirectWireless(const std::vector<RGBColor>& colors)
 {
-    // Build 378-byte planar buffer
+    // Build 378-byte planar buffer (126 R + 126 G + 126 B)
     unsigned char raw_buffer[MCHOSE_G75_LEDS_COUNT * 3];
     memset(raw_buffer, 0x00, sizeof(raw_buffer));
 
@@ -267,7 +311,7 @@ void MchoseG75Controller::SetLEDsDirectWireless(const std::vector<RGBColor>& col
         packet[0] = 0x13;
         packet[1] = 0x02;
         packet[2] = 0x1B;
-        packet[3] = (unsigned char)chunk_idx;
+        packet[3] = static_cast<unsigned char>(chunk_idx);
         packet[4] = MCHOSE_G75_CHUNK_SIZE;
 
         memcpy(&packet[5], &raw_buffer[chunk_idx * MCHOSE_G75_CHUNK_SIZE], MCHOSE_G75_CHUNK_SIZE);
@@ -277,9 +321,9 @@ void MchoseG75Controller::SetLEDsDirectWireless(const std::vector<RGBColor>& col
         {
             checksum += packet[b];
         }
-        packet[19] = (unsigned char)(checksum & 0xFF);
+        packet[19] = static_cast<unsigned char>(checksum & 0xFF);
 
-        int written = hid_write(dev, packet, 20);
+        int written = hid_write(dev, packet, sizeof(packet));
         if(written < 0)
         {
             Reconnect();

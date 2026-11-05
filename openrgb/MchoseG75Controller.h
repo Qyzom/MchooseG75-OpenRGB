@@ -67,13 +67,15 @@ private:
     std::string location;
     int         mode;
 
-    std::recursive_mutex    dev_mutex;
-    std::mutex              update_mutex;
-    std::condition_variable update_cv;
-    std::thread             worker_thread;
-    std::atomic<bool>       stop_thread;
-    bool                    has_pending_update;
-    std::vector<RGBColor>   pending_colors;
+    std::recursive_mutex                  dev_mutex;
+    std::chrono::steady_clock::time_point last_reconnect_time;
+
+    std::mutex                            update_mutex;
+    std::condition_variable               update_cv;
+    std::thread                           worker_thread;
+    std::atomic<bool>                     stop_thread;
+    bool                                  has_pending_update;
+    std::vector<RGBColor>                 pending_colors;
 
     void        WorkerThreadLoop();
     void        SendFrame(const std::vector<RGBColor>& colors);
